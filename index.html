@@ -1,0 +1,633 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citas con Aroma a Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&family=Beau+Rivage&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06070c;
+    --bg-2:#0d0f1a;
+    --panel:#11131f;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.16);
+    --cream:#f2ece0;
+    --dim:#9a95a8;
+    --gold:#e8c77e;
+    --gold-dim:#8a7648;
+    --nebula:#8f7cf0;
+    --teal:#4fd1c5;
+    --rose:#e0839a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(circle at 15% 8%, rgba(143,124,240,.10), transparent 40%),
+                      radial-gradient(circle at 85% 20%, rgba(79,209,197,.08), transparent 45%);
+    color:var(--cream);
+    font-family:'Jost',sans-serif;
+    font-weight:300;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:30px 18px 90px;}
+
+  header{text-align:center;margin-bottom:18px;}
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--teal);
+    font-weight:500;
+  }
+  h1{
+    font-family:'Mrs Saint Delafield',cursive;
+    font-weight:400;
+    font-size:52px;
+    margin:6px 0 2px;
+    background:linear-gradient(90deg,var(--gold),var(--cream) 60%,var(--gold));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    line-height:1.1;
+  }
+  .subtitle{
+    font-size:13.5px;
+    color:var(--dim);
+    max-width:380px;
+    margin:2px auto 0;
+    font-weight:300;
+  }
+
+  /* --- minimap --- */
+  .map-wrap{
+    position:relative;
+    margin:22px 0 20px;
+    border-radius:18px;
+    border:1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(6,7,12,.82), rgba(6,7,12,.62)),
+      url('fondo.jpg') center/cover no-repeat;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    touch-action: pan-x;
+    height:320px;
+    z-index:0;
+  }
+  .map-wrap::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,.18), transparent 2px),
+      radial-gradient(circle at 34% 38%, rgba(255,255,255,.14), transparent 1.5px),
+      radial-gradient(circle at 60% 14%, rgba(255,255,255,.16), transparent 2px),
+      radial-gradient(circle at 78% 62%, rgba(255,255,255,.12), transparent 1.7px),
+      radial-gradient(circle at 46% 78%, rgba(255,255,255,.13), transparent 1.8px),
+      radial-gradient(circle at 10% 80%, rgba(255,255,255,.1), transparent 1px),
+      radial-gradient(circle at 82% 22%, rgba(255,255,255,.08), transparent 1px);
+    opacity:.65;
+    pointer-events:none;
+    z-index:0;
+  }
+  .map-wrap::after{
+    content:'';
+    position:absolute;
+    top:20%;
+    left:-20%;
+    width:240px;
+    height:2px;
+    background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 45%, rgba(255,255,255,0.95) 55%, transparent 100%);
+    transform:rotate(18deg);
+    opacity:0;
+    filter:blur(1px);
+    pointer-events:none;
+    z-index:0;
+    animation:shootingStar 6.5s linear infinite;
+  }
+  .map-svg{position:absolute; top:0; left:0; width:100%; min-width:100%; height:100%; touch-action:auto; display:block; z-index:1;}
+  .map-empty{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--dim);
+    font-size:12.5px;
+    text-align:center;
+    padding:0 40px;
+    z-index:2;
+  }
+  .map-label{
+    position:absolute;
+    top:10px; left:14px;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--dim);
+    z-index:2;
+  }
+  @keyframes shootingStar{
+    0%{opacity:0; transform:translateX(0) rotate(18deg);}
+    10%{opacity:0.85;}
+    50%{opacity:0.45;}
+    100%{opacity:0; transform:translateX(420px) rotate(18deg);}
+  }
+  .mapmarker.new-star circle:last-child{
+    animation:newStarPop .45s ease-out;
+  }
+  .new-star-glow{
+    animation:newStarGlow .95s ease-out;
+    opacity:0.8;
+  }
+  @keyframes newStarPop{
+    0%{transform:scale(0.3); opacity:0;}
+    60%{transform:scale(1.25); opacity:1;}
+    100%{transform:scale(1); opacity:1;}
+  }
+  @keyframes newStarGlow{
+    0%{stroke-opacity:0; transform:scale(0.8);}
+    30%{stroke-opacity:0.85; transform:scale(1.05);}
+    100%{stroke-opacity:0; transform:scale(1.5);}
+  }
+  .map-empty{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--dim);
+    font-size:12.5px;
+    text-align:center;
+    padding:0 40px;
+  }
+  .marker-label{
+    font-size:9px;
+    fill:var(--cream);
+    font-family:'Jost',sans-serif;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 8px;
+    text-align:center;
+  }
+  .stat .n{
+    font-size:22px;
+    font-weight:500;
+    color:var(--gold);
+    line-height:1;
+  }
+  .stat .l{
+    font-size:10px;
+    color:var(--dim);
+    margin-top:5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+
+  .toolbar{display:flex; gap:8px; margin-bottom:16px;}
+  select{
+    flex:1;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--cream);
+    font-size:13px;
+    font-family:'Jost',sans-serif;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--dim);
+    font-size:13.5px;
+  }
+  .empty .stamp{
+    font-family:'Mrs Saint Delafield',cursive;
+    font-size:26px;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:0 0 16px;
+    margin-bottom:16px;
+    overflow:hidden;
+    scroll-margin-top:20px;
+  }
+  .card.highlight{border-color:var(--gold);}
+  .card-photo{
+    width:100%; height:170px;
+    object-fit:cover;
+    display:block;
+    background:var(--bg-2);
+  }
+  .card-body{padding:16px 18px 0;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .cname{
+    font-family:'Beau Rivage',cursive;
+    font-weight:400;
+    font-size:30px;
+    color:var(--gold);
+    margin:0;
+    line-height:1;
+  }
+  .caddr{font-size:11.5px; color:var(--dim); margin-top:4px;}
+  .score-pill{
+    background:rgba(232,199,126,.1);
+    border:1px solid rgba(232,199,126,.35);
+    color:var(--gold);
+    font-weight:500;
+    font-size:13px;
+    border-radius:20px;
+    padding:5px 11px;
+    text-align:center;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .divider{border:none; border-top:1px dashed var(--line-strong); margin:12px 0;}
+
+  .cat-row{display:flex; justify-content:space-between; align-items:center; margin:6px 0;}
+  .cat-label{font-size:11.5px; color:var(--dim); text-transform:uppercase; letter-spacing:.05em; width:70px;}
+  .moons{display:flex; gap:3px;}
+  .moon{
+    width:14px; height:14px;
+    border-radius:50%;
+    border:1px solid var(--gold-dim);
+    background:transparent;
+    flex-shrink:0;
+  }
+  .moon.full{background:var(--gold); border-color:var(--gold); box-shadow:0 0 4px rgba(232,199,126,.6);}
+  .moon.half{background:linear-gradient(90deg,var(--gold) 50%, transparent 50%); border-color:var(--gold);}
+
+  .review{
+    font-size:13.5px;
+    color:var(--cream);
+    opacity:.85;
+    margin-top:12px;
+    line-height:1.6;
+    font-style:italic;
+  }
+  .meta{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:12px; font-size:10.5px; color:var(--dim);
+  }
+  .del{background:none; border:none; color:var(--rose); font-size:10.5px; cursor:pointer; text-decoration:underline; font-family:'Jost',sans-serif;}
+
+  .fab{
+    position:fixed; bottom:24px; right:24px;
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#c99b4a);
+    color:#1a1200; font-size:28px; border:none;
+    box-shadow:0 6px 20px rgba(232,199,126,.35);
+    cursor:pointer; line-height:56px;
+  }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .sheet{
+    background:var(--bg-2);
+    border-top:1px solid var(--line-strong);
+    width:100%; max-width:640px;
+    border-radius:20px 20px 0 0;
+    padding:22px 20px 30px;
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  .sheet h2{
+    font-family:'Mrs Saint Delafield',cursive;
+    font-size:32px; margin:0 0 14px; color:var(--gold); font-weight:400;
+  }
+  label{
+    display:block; font-size:11px; font-weight:500; color:var(--dim);
+    text-transform:uppercase; letter-spacing:.06em; margin:14px 0 6px;
+  }
+  input[type=text], textarea{
+    width:100%; padding:11px 12px; border-radius:10px;
+    border:1px solid var(--line); font-size:14px;
+    background:var(--panel); color:var(--cream); font-family:'Jost',sans-serif;
+  }
+  textarea{resize:vertical; min-height:60px;}
+  .photo-input{
+    display:flex; align-items:flex-start; gap:12px;
+    flex-wrap:wrap;
+  }
+  .photo-preview-container{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+    max-width:100%;
+  }
+  .photo-thumb{
+    position:relative;
+    width:52px;
+    height:52px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 0 0 rgba(255,255,255,.08);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .photo-thumb:hover{
+    transform:scale(1.05);
+    box-shadow:0 10px 20px rgba(0,0,0,.18);
+  }
+  .photo-thumb img{
+    width:100%; height:100%; object-fit:cover;
+    display:block;
+  }
+  .photo-thumb-remove{
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:18px; height:18px;
+    border:none;
+    border-radius:50%;
+    background:rgba(0,0,0,.5);
+    color:#fff;
+    cursor:pointer;
+    font-size:12px;
+    line-height:18px;
+    text-align:center;
+  }
+  .photo-btn{
+    border:1px dashed var(--line-strong); border-radius:10px;
+    padding:10px 14px; font-size:12.5px; color:var(--dim);
+    cursor:pointer; text-align:center; flex:1;
+  }
+  .moon-picker{display:flex; gap:6px; align-items:center;}
+  .moon-picker .moon{width:26px; height:26px; cursor:pointer;}
+  .picker-val{font-size:13px; color:var(--gold); min-width:28px; text-align:right;}
+
+  .sheet-actions{display:flex; gap:10px; margin-top:22px;}
+  .btn{appearance:none; border:none; cursor:pointer; border-radius:10px; padding:11px 16px; font-size:14px; font-weight:500; flex:1; font-family:'Jost',sans-serif;}
+  .btn-primary{background:linear-gradient(135deg,var(--gold),#c99b4a); color:#1a1200;}
+  .btn-ghost{background:transparent; border:1px solid var(--line-strong); color:var(--cream);}
+  .map-hint{
+    text-align:center;
+    font-size:12px;
+    color:var(--dim);
+    margin:0 0 8px;
+  }
+  .map-tooltip{
+    position:absolute;
+    left:50%;
+    top:0;
+    transform:translate(-50%, -110%);
+    background:rgba(10,10,25,.95);
+    color:#fff;
+    padding:10px 12px;
+    border-radius:14px;
+    box-shadow:0 16px 28px rgba(0,0,0,.28);
+    font-size:12px;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+    z-index:2;
+  }
+  .map-tooltip.visible{
+    opacity:1;
+    transform:translate(-50%, -120%);
+  }
+
+  .detail-photo{
+    width:100%; height:190px; object-fit:cover; border-radius:12px; margin-bottom:14px;
+  }
+  .detail-gallery{
+    display:grid;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .detail-gallery-main{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    background:var(--bg-2);
+    box-shadow:0 10px 24px rgba(0,0,0,.18);
+  }
+  .detail-gallery-main img{
+    width:100%; height:340px; object-fit:contain;
+    display:block;
+    transition: transform .24s ease;
+    background:var(--bg-2);
+  }
+  .detail-gallery-main img:hover{
+    transform:scale(1.01);
+  }
+  .gallery-nav{
+    position:absolute;
+    top:50%;
+    width:36px;
+    height:36px;
+    margin-top:-18px;
+    border:none;
+    border-radius:50%;
+    background:rgba(0,0,0,.32);
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    line-height:1;
+    backdrop-filter:blur(4px);
+  }
+  .gallery-prev{ left:12px; }
+  .gallery-next{ right:12px; }
+  .detail-gallery-thumbs{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .detail-thumb{
+    border:none;
+    background:none;
+    padding:0;
+    width:72px;
+    min-width:72px;
+    height:72px;
+    border-radius:14px;
+    overflow:hidden;
+    cursor:pointer;
+    opacity:.75;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .detail-thumb.active,
+  .detail-thumb:hover{
+    opacity:1;
+    transform:scale(1.03);
+  }
+  .detail-thumb img{
+    width:100%; height:100%; object-fit:cover;
+    display:block;
+  }
+  .detail-close{
+    display:flex; justify-content:flex-end; margin-bottom:-6px;
+  }
+  .detail-close button{
+    background:none; border:none; color:var(--dim); font-size:22px; cursor:pointer; line-height:1;
+  }
+  .meta div{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .edit,
+  .del{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    padding:6px 10px;
+    border-radius:10px;
+    font-size:11px;
+    line-height:1;
+  }
+  .edit{
+    background:rgba(79,209,197,.13);
+    color:var(--teal);
+  }
+  .del{
+    background:none;
+    color:var(--rose);
+    text-decoration:underline;
+  }
+  .err{color:var(--rose); font-size:12px; margin-top:8px; display:none;}
+
+  @media (max-width: 560px) {
+    .wrap{padding:20px 12px 88px;}
+    .map-wrap{height:280px; margin:18px 0 16px; overflow-x:hidden;}
+    .map-label{top:8px; left:12px; font-size:10px;}
+    .stats{grid-template-columns:1fr;}
+    .card-top{flex-direction:column; align-items:flex-start;}
+    .cname{font-size:26px;}
+    .detail-gallery-main img{height:240px;}
+    .detail-gallery-thumbs{gap:8px; padding-bottom:6px;}
+    .gallery-nav{width:36px; height:36px; font-size:18px;}
+    .detail-thumb{width:60px; min-width:60px; height:60px;}
+    .photo-preview{width:44px; height:44px;}
+    .sheet{padding:18px 16px 24px; max-height:calc(100vh - 14px); height:auto;}
+    .sheet-actions{flex-direction:column;}
+    .photo-input{flex-direction:column; align-items:stretch;}
+    .photo-btn{width:100%;}
+    .photo-preview-container{justify-content:flex-start;}
+    .moon-picker{flex-wrap:wrap; gap:8px;}
+    .picker-val{font-size:12px;}
+    .btn{font-size:13px;}
+    .map-tooltip{font-size:11px; padding:9px 11px;}
+    .map-wrap{border-radius:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Un reto para dos</div>
+    <h1>Citas con Aroma a Café</h1>
+    <p class="subtitle">Cada cafetería que exploramos en Valdivia queda registrada acá, con su puntuación y su historia.</p>
+  </header>
+
+  <div class="map-wrap">
+    <div class="map-label">Mapa de constelaciones desbloqueadas</div>
+    <svg class="map-svg" id="mapSvg" viewBox="0 0 300 260" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mapa de cafeterías visitadas" aria-describedby="mapHint" tabindex="0"></svg>
+    <div class="map-tooltip" id="mapTooltip" role="status" aria-live="polite"></div>
+    <div class="map-empty" id="mapEmpty">Su primera cafetería encenderá la primera estrella del mapa.</div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <p class="map-hint" id="mapHint">Toca una estrella para ver su reseña completa.</p>
+</div>
+
+<button class="fab" id="openAdd" aria-label="Agregar cafetería">+</button>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h2>Nueva estrella</h2>
+
+    <label for="fName">Nombre del lugar</label>
+    <input type="text" id="fName" placeholder="Añadir nombre de la cafetería">
+
+    <label for="fAddr">Dirección / sector</label>
+    <input type="text" id="fAddr" placeholder="Añadir dirección o sector aproximado">
+
+    <label>Ubicación</label>
+    <div class="photo-input">
+      <button type="button" class="photo-btn" id="geoBtn" style="cursor:pointer;">Usar mi ubicación</button>
+    </div>
+    <p id="geoStatus" style="font-size:11.5px; color:var(--dim); margin:6px 0 0;">Sin coordenadas todavía — el mapa la ubicará al azar.</p>
+
+    <label>Fotos (opcionales)</label>
+    <div class="photo-input">
+      <label class="photo-btn" id="photoBtnLabel">Elegir fotos
+        <input type="file" id="fPhoto" accept="image/*" multiple style="display:none;">
+      </label>
+      <div id="photoPreviewContainer" class="photo-preview-container"></div>
+    </div>
+
+    <label>Día de la visita</label>
+    <input type="text" id="fWho" placeholder="¿Qué día la visitaron?">
+
+    <label>Café</label>
+    <div class="moon-picker" id="pickCafe"></div>
+
+    <label>Ambiente</label>
+    <div class="moon-picker" id="pickAmb"></div>
+
+    <label>Precio</label>
+    <div class="moon-picker" id="pickPrecio"></div>
+
+    <label for="fNotes">Reseña</label>
+    <textarea id="fNotes" placeholder="¿Qué pidieron, cómo fue el servicio, volverían?"></textarea>
+
+    <p class="err" id="formErr">Ponle un nombre a la cafetería antes de guardar.</p>
+
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="cancelAdd">Cancelar</button>
+      <button class="btn btn-primary" id="saveAdd">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="detailOverlay">
+  <div class="sheet">
+    <div class="detail-close"><button id="closeDetail" aria-label="Cerrar">&times;</button></div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  // Configuración de Firebase para tu proyecto.
+  const firebaseConfig = {
+    apiKey: "AIzaSyAZKf_0o_d_N8caEipWGxZAcmqwdXT8sAQ",
+    authDomain: "aroma-a-cafe-23b38.firebaseapp.com",
+    projectId: "aroma-a-cafe-23b38",
+    storageBucket: "aroma-a-cafe-23b38.firebasestorage.app",
+    messagingSenderId: "1027628775045",
+    appId: "1:1027628775045:web:cc780a8bf9b5f72d995bec"
+  };
+
+  if (typeof firebase !== 'undefined' && !firebase.apps.length && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+    firebase.initializeApp(firebaseConfig);
+  }
+</script>
+<script src="script.js"></script>
+
+</body>
+</html>
